@@ -10,35 +10,47 @@ const Header = ({ currentPage, setCurrentPage }) => {
   return (
     <header className="header">
       <div className="header-container">
-        <div className="logo">
+        <div className="logo" onClick={() => setCurrentPage('home')}>
           <h1 className="logo-text">LUXE</h1>
           <span className="logo-subtitle">Premium Jewelry</span>
         </div>
         <nav className="nav">
           <a 
             href="#" 
-            onClick={() => setCurrentPage('home')}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentPage('home');
+            }}
             className={`nav-link ${currentPage === 'home' ? 'active' : ''}`}
           >
             Home
           </a>
           <a 
             href="#" 
-            onClick={() => setCurrentPage('products')}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentPage('products');
+            }}
             className={`nav-link ${currentPage === 'products' ? 'active' : ''}`}
           >
             Collections
           </a>
           <a 
             href="#" 
-            onClick={() => setCurrentPage('about')}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentPage('about');
+            }}
             className={`nav-link ${currentPage === 'about' ? 'active' : ''}`}
           >
             About
           </a>
           <a 
             href="#" 
-            onClick={() => setCurrentPage('contact')}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentPage('contact');
+            }}
             className={`nav-link ${currentPage === 'contact' ? 'active' : ''}`}
           >
             Contact
@@ -50,13 +62,18 @@ const Header = ({ currentPage, setCurrentPage }) => {
 };
 
 // Hero Section Component
-const Hero = () => {
+const Hero = ({ setCurrentPage }) => {
   return (
     <section className="hero">
       <div className="hero-content">
         <h1 className="hero-title">Timeless Elegance</h1>
         <p className="hero-subtitle">Discover our exquisite collection of premium jewelry, crafted for those who appreciate luxury and sophistication</p>
-        <button className="hero-button">Explore Collection</button>
+        <button 
+          className="hero-button"
+          onClick={() => setCurrentPage('products')}
+        >
+          Explore Collection
+        </button>
       </div>
       <div className="hero-image">
         <img 
@@ -71,7 +88,27 @@ const Hero = () => {
 
 // Product Details Modal Component
 const ProductDetailsModal = ({ product, isOpen, onClose }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen || !product) return null;
+
+  const handleInquiry = () => {
+    alert(`Thank you for your interest in ${product.name}! We will contact you shortly with more information.`);
+  };
+
+  const handleAddToCart = () => {
+    alert(`${product.name} has been added to your cart!`);
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -116,27 +153,31 @@ const ProductDetailsModal = ({ product, isOpen, onClose }) => {
               <h3>Material Details</h3>
               <div className="material-grid">
                 <div className="material-item">
-                  <span className="material-label">Material:</span>
+                  <span className="material-label">Material</span>
                   <span className="material-value">{product.material_details?.material || 'N/A'}</span>
                 </div>
                 <div className="material-item">
-                  <span className="material-label">Gemstones:</span>
+                  <span className="material-label">Gemstones</span>
                   <span className="material-value">{product.material_details?.gemstones || 'N/A'}</span>
                 </div>
                 <div className="material-item">
-                  <span className="material-label">Weight:</span>
+                  <span className="material-label">Weight</span>
                   <span className="material-value">{product.material_details?.weight || 'N/A'}</span>
                 </div>
                 <div className="material-item">
-                  <span className="material-label">Origin:</span>
+                  <span className="material-label">Origin</span>
                   <span className="material-value">{product.material_details?.origin || 'N/A'}</span>
                 </div>
               </div>
             </div>
             
             <div className="modal-actions">
-              <button className="inquiry-button">Send Inquiry</button>
-              <button className="add-to-cart-button">Add to Cart</button>
+              <button className="inquiry-button" onClick={handleInquiry}>
+                Send Inquiry
+              </button>
+              <button className="add-to-cart-button" onClick={handleAddToCart}>
+                Add to Cart
+              </button>
             </div>
           </div>
         </div>
@@ -181,10 +222,10 @@ const ProductCard = ({ product, onViewDetails }) => {
 };
 
 // Home Page Component
-const HomePage = ({ featuredProducts, onViewDetails }) => {
+const HomePage = ({ featuredProducts, onViewDetails, setCurrentPage }) => {
   return (
     <div className="page">
-      <Hero />
+      <Hero setCurrentPage={setCurrentPage} />
       
       <section className="featured-section">
         <div className="container">
@@ -210,7 +251,12 @@ const HomePage = ({ featuredProducts, onViewDetails }) => {
               Each piece in our collection is meticulously crafted by master artisans using the finest materials. 
               From ethically sourced diamonds to premium gold, every detail reflects our commitment to excellence.
             </p>
-            <button className="brand-button">Learn More</button>
+            <button 
+              className="brand-button"
+              onClick={() => setCurrentPage('about')}
+            >
+              Learn More
+            </button>
           </div>
         </div>
       </section>
@@ -289,6 +335,13 @@ const AboutPage = () => {
               <li>Exceptional customer service</li>
               <li>Craftsmanship heritage</li>
             </ul>
+            
+            <h2>Why Choose LUXE?</h2>
+            <p>
+              When you choose LUXE, you're not just purchasing jewelry - you're investing in a legacy. 
+              Each piece tells a story of dedication, artistry, and uncompromising quality that will be 
+              treasured for generations to come.
+            </p>
           </div>
           
           <div className="about-image">
@@ -493,7 +546,7 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage featuredProducts={featuredProducts} onViewDetails={handleViewDetails} />;
+        return <HomePage featuredProducts={featuredProducts} onViewDetails={handleViewDetails} setCurrentPage={setCurrentPage} />;
       case 'products':
         return <ProductsPage products={products} onViewDetails={handleViewDetails} />;
       case 'about':
@@ -501,7 +554,7 @@ function App() {
       case 'contact':
         return <ContactPage />;
       default:
-        return <HomePage featuredProducts={featuredProducts} onViewDetails={handleViewDetails} />;
+        return <HomePage featuredProducts={featuredProducts} onViewDetails={handleViewDetails} setCurrentPage={setCurrentPage} />;
     }
   };
 
